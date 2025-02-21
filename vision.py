@@ -5,36 +5,36 @@ import streamlit as st
 import google.generativeai as genai
 from PIL import Image
 
-genai.configure(api_key=os.getenv("Google_API_KEY"))
-model = genai.GenerativeModel("gemini-1.0")
 
-# function to generate text and text using google AI
-def get_gemini_responce(input_text, image):
-    if input_text and image:
-        combined_input = f"{input_text} [Image: {image}]"
-        response = model.generate_content(combined_input)
-    elif input_text:
-        response = model.generate_content(input_text)
+genai.configure(api_key=os.getenv("Google_API_KEY"))
+MODEL = genai.GenerativeModel(model_name="gemini-1.5-pro-latest")
+
+# Function to generate text using Google AI
+def get_gemini_response(text, image):
+    if text and image:
+        response = MODEL.generate_content([text, image])
+    elif text:
+        response = MODEL.generate_content([text])
     else:
-        response = model.generate_content(image)
+        response = MODEL.generate_content([image])
     return response.text
 
-# initialize our streamlit app
-st.set_page_config(page_title="Gemini image")
-st.header("Gemini LLm application")
-input_text = st.text_input("Input:  ", key="input")
-
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+# Initialize our Streamlit app
+st.set_page_config(page_title="VisionText AI")
+st.header("VisionText AI application")
+text = st.text_input(" Your Question ", key="input")
+uploaded_file = st.file_uploader("Upload image", type=["jpg", "png", "jpeg"])
 image = None
+
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image.', use_column_width=True)
+    st.image(image, caption='Uploaded Image.', use_container_width=True)
 
-submit = st.button("Ask the Question about the image")
+submit = st.button("Submit")  # Button to submit the question
+# When the submit button is clicked
 
-# when the submit button is clicked
 if submit:
-   response = get_gemini_responce(input_text, image)
-   st.subheader("Response:")
-   st.write(response)
+    response = get_gemini_response(text, image)
+    st.subheader("Response:")
+    st.write(response)  # Display the response
 
